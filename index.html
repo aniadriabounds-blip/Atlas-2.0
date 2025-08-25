@@ -3,30 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Atlas</title>
+<title>Atlas — Planner v1</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Atlas">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#0f1110;--ink:#ecece6;--line:#2b2f29;--accent:#7aa683;--good:#3fb47b;--bad:#d05a54}
+:root{--bg:#f4f2ee;--ink:#223022;--muted:#6a7a6a;--line:#dcd8cf;--card:#ffffff;--accent:#6a8f6f;--good:#3fb47b;--bad:#d05a54;--warn:#b9892a}
+@media (prefers-color-scheme: dark){:root{--bg:#0f1110;--card:#141713;--ink:#ecece6;--muted:#9fb2a0;--line:#2b2f29;--accent:#7aa683}}
+*{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,Arial}
-header{position:sticky;top:0;background:#121513;padding:10px;border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(255,255,255,.75),transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px}
 h1{margin:0;font-size:20px}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#161a16;color:#b8c8ba;cursor:pointer}
-nav button.active{background:var(--accent);color:#0f1110;font-weight:700}
-main{padding:14px;max-width:960px;margin:0 auto}
+nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#ffffffe0;color:#1d2a1d;cursor:pointer}
+nav button.active{background:var(--accent);border-color:transparent;color:#0f1110;font-weight:700}
+main{padding:14px;max-width:1060px;margin:0 auto}
 section{display:none}.active{display:block}
-.card{background:#141713;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.card{background:linear-gradient(180deg,var(--card),#0000 6%);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
-input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#161a16;color:var(--ink)}
+input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:color-mix(in oklab,var(--card),black 4%);color:var(--ink)}
 button.primary{background:var(--accent);color:#0f1110;font-weight:800;border:none}
-.small{color:#9fb2a0;font-size:12px}
-#lock{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:50}
-#lock .inner{max-width:420px;width:calc(100% - 28px)}
+.small{color:var(--muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);padding:4px 8px;border-radius:999px;color:var(--muted);font-size:12px}
+.right{margin-left:auto}
+
+/* Calendar */
+.calendar{margin-top:10px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.cal-head{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:10px;border-bottom:1px solid var(--line)}
+.cal-title{font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-dow>div{padding:8px 10px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);background:color-mix(in oklab,var(--card),black 3%)}
+.day{min-height:94px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;position:relative;cursor:pointer}
+.day:nth-child(7n){border-right:none}
+.day .n{font-size:12px;color:var(--muted)}
+.day .chips{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.chip{font-size:11px;padding:6px 8px;border-radius:8px;background:color-mix(in oklab,var(--accent),transparent 85%);border:1px solid color-mix(in oklab,var(--accent),transparent 55%);color:var(--ink)}
+.chip.Due{background:color-mix(in oklab,var(--bad),transparent 85%);border-color:color-mix(in oklab,var(--bad),transparent 55%)}
+.chip.Statement{background:color-mix(in oklab,var(--warn),transparent 85%);border-color:color-mix(in oklab,var(--warn),transparent 55%)}
+.chip.Payment{background:color-mix(in oklab,var(--good),transparent 85%);border-color:color-mix(in oklab,var(--good),transparent 55%)}
+.muted{opacity:.55}
+.today-ring{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px color-mix(in oklab,var(--accent),transparent 85%)}
+
+/* Modal + Lock (from Pack A) */
 .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:50}
 .modal .inner{max-width:560px;width:calc(100% - 28px)}
+#lock{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:50}
+#lock .inner{max-width:420px;width:calc(100% - 28px)}
 </style>
 </head>
 <body>
@@ -39,39 +63,126 @@ button.primary{background:var(--accent);color:#0f1110;font-weight:800;border:non
     <button data-tab="planner">Planner</button>
     <button data-tab="tasks">Tasks</button>
     <button data-tab="notes">Notes</button>
-    <button id="open_settings">⚙️</button>
+    <button id="open_settings" class="right">⋯</button>
   </nav>
 </header>
+
 <main>
-  <section id="feed" class="active"><div class="card">Welcome to Atlas</div></section>
-  <section id="money"><div class="card">Money tab here</div></section>
-  <section id="credit"><div class="card">Credit tab here</div></section>
-  <section id="planner"><div class="card">Planner tab here</div></section>
-  <section id="tasks"><div class="card">Tasks tab here</div></section>
-  <section id="notes"><div class="card"><textarea id="notes_area" rows="8" style="width:100%"></textarea><button id="notes_save" class="primary">Save</button></div></section>
+  <!-- Feed -->
+  <section id="feed" class="active">
+    <div class="card">
+      <div class="row">
+        <div><div class="small">Today’s Cash</div><div class="num" id="feed_cash">$0</div></div>
+        <div><div class="small">Debt (Cards)</div><div class="num" id="feed_debt">$0</div></div>
+        <div><div class="small">Next 7 days</div><div id="feed_event">—</div></div>
+        <div><div class="small">Task Streak</div><div id="feed_streak">0 days</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Money -->
+  <section id="money">
+    <div class="card"><div class="row">
+      <div><label class="small">Type</label><select id="acct_type"><option>Checking</option><option>Savings</option><option>Credit Card</option><option>Cash</option></select></div>
+      <div><label class="small">Name</label><input id="acct_name" placeholder="e.g., Chase Checking"></div>
+      <div><label class="small">Opening Balance</label><input id="acct_open" type="number" step="0.01" placeholder="0.00"></div>
+      <div><label class="small">Credit Limit (if CC)</label><input id="acct_limit" type="number" step="1" placeholder="0"></div>
+      <div style="flex:0 0 160px;align-self:flex-end"><button id="acct_add" class="primary">Add</button></div>
+    </div></div>
+    <div class="card"><div class="row" id="acct_cards"></div></div>
+    <div class="card"><div class="row">
+      <div><label class="small">Account</label><select id="tx_acct"></select></div>
+      <div><label class="small">Date</label><input id="tx_date" type="date"></div>
+      <div><label class="small">Description</label><input id="tx_desc" placeholder="Description"></div>
+      <div><label class="small">Category</label><select id="tx_cat"><option>Income</option><option>Transfer</option><option>Groceries</option><option>Rent</option><option>Dining</option><option>Utilities</option><option>Debt Payment</option><option>Other</option></select></div>
+      <div><label class="small">Amount (+/‑)</label><input id="tx_amt" type="number" step="0.01" placeholder="-25.00"></div>
+      <div style="flex:0 0 160px;align-self:flex-end"><button id="tx_add" class="primary">Add Tx</button></div>
+    </div>
+    <table><thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Category</th><th class="num">Amount</th><th></th></tr></thead><tbody id="tx_rows"></tbody></table>
+    </div>
+  </section>
+
+  <!-- Credit -->
+  <section id="credit">
+    <div class="card"><div class="row">
+      <div>
+        <div class="small">Overall Utilization</div>
+        <div class="num" id="util_overall">—</div>
+        <div class="small">Aim &lt; 10%</div>
+      </div>
+      <div>
+        <div class="small">Score (manual)</div>
+        <div class="row"><input id="score_in" type="number" value="700"><button id="score_set" class="primary" style="flex:0 0 120px">Set</button></div>
+        <div class="small">Current: <span id="score_val">700</span></div>
+      </div>
+    </div></div>
+    <div class="card">
+      <div class="small">Per‑card details</div>
+      <table><thead><tr><th>Card</th><th class="num">Balance</th><th class="num">Limit</th><th class="num">Util%</th></tr></thead><tbody id="util_rows"></tbody></table>
+    </div>
+  </section>
+
+  <!-- Planner (Calendar v1) -->
+  <section id="planner">
+    <div class="card"><div class="row" style="align-items:flex-end">
+      <div style="min-width:220px"><label class="small">Title</label><input id="evt_title" placeholder="e.g., Rent due"></div>
+      <div><label class="small">Type</label>
+        <select id="evt_type"><option>Due</option><option>Statement</option><option>Payment</option><option>Other</option></select>
+      </div>
+      <div><label class="small">Date</label><input id="evt_date" type="date"></div>
+      <div><label class="small">Repeat</label>
+        <select id="evt_repeat"><option value="none">None</option><option value="monthly">Monthly</option></select>
+      </div>
+      <div style="flex:0 0 160px"><button id="evt_add" class="primary">Add</button></div>
+      <div class="right pill">Tip: Add card statement dates here</div>
+    </div></div>
+
+    <div class="calendar">
+      <div class="cal-head">
+        <button id="cal_prev">◀</button>
+        <div class="cal-title"><span id="cal_m">Month</span> <span id="cal_y">Year</span></div>
+        <button id="cal_next">▶</button>
+      </div>
+      <div class="cal-grid cal-dow"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+      <div class="cal-grid" id="cal_days"></div>
+    </div>
+  </section>
+
+  <!-- Tasks -->
+  <section id="tasks">
+    <div class="card"><div class="row">
+      <div><input id="task_text" placeholder="Task"></div>
+      <div style="flex:0 0 160px;align-self:flex-end"><button id="task_add" class="primary">Add</button></div>
+    </div></div>
+    <div class="card"><ul id="task_list"></ul></div>
+  </section>
+
+  <!-- Notes -->
+  <section id="notes">
+    <div class="card"><textarea id="notes_area" rows="10" placeholder="Notes…"></textarea><div class="row" style="margin-top:8px"><button id="notes_save" class="primary">Save</button></div></div>
+  </section>
 </main>
 
 <!-- Settings Modal -->
 <div id="settings" class="modal">
   <div class="inner card">
-    <h3>Settings</h3>
-    <button id="btn_export" class="primary">Export Backup</button>
-    <input id="import_file" type="file" accept="application/json" style="display:none">
-    <button id="btn_import">Import Backup</button>
-    <button id="btn_reset">Reset App</button>
-    <hr>
-    <input id="pin_new" placeholder="6-digit passcode" maxlength="6">
-    <button id="pin_set">Set Passcode</button>
-    <button id="pin_clear">Remove Passcode</button>
-    <button id="settings_close">Close</button>
+    <div class="row"><div class="small">Settings</div><div class="right"><button id="settings_close">Close</button></div></div>
+    <div class="row">
+      <button id="btn_export" class="primary">Export (.json)</button>
+      <input id="import_file" type="file" accept="application/json" style="display:none">
+      <button id="btn_import">Import (.json)</button>
+      <button id="btn_reset">Reset App</button>
+    </div>
   </div>
 </div>
 
-<!-- Lock screen -->
+<!-- Lock screen (if passcode set in Pack A) -->
 <div id="lock"><div class="inner card">
-  <p>Enter passcode:</p>
-  <input id="pin_enter" type="password" maxlength="6">
-  <button id="pin_go" class="primary">Unlock</button>
+  <div class="small">Enter passcode to unlock</div>
+  <div class="row" style="margin-top:6px">
+    <input id="pin_enter" type="password" maxlength="6" inputmode="numeric" placeholder="••••••">
+    <button id="pin_go" class="primary">Unlock</button>
+  </div>
 </div></div>
 
 <script src="app.js"></script>
