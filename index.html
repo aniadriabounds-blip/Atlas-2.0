@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#0f1110; color:#ecece6; }
+    header { background:#121513; padding:10px; text-align:center; }
+    h1 { margin:0; font-size:22px; }
+    nav { display:flex; justify-content:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
+    nav button { padding:6px 12px; border-radius:20px; border:1px solid #252a24; background:#161a16; color:#99a49b; cursor:pointer; }
+    nav button.active { background:#7d8f75; color:#0f1110; font-weight:bold; }
+    section { display:none; padding:15px; }
+    section.active { display:block; }
+    .card { background:#131712; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #252a24; }
+    input,textarea,button { width:100%; margin-top:5px; padding:8px; border-radius:6px; border:1px solid #252a24; background:#161a16; color:#ecece6; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Atlas</h1>
+    <nav>
+      <button data-tab="feed" class="active">Feed</button>
+      <button data-tab="planner">Planner</button>
+      <button data-tab="tasks">Tasks</button>
+      <button data-tab="notes">Notes</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="feed" class="active">
+      <div class="card"><h3>Welcome to Atlas</h3><p>This is your life dashboard.</p></div>
+    </section>
+
+    <section id="planner">
+      <div class="card"><h3>Add Event</h3>
+        <input id="event_title" placeholder="Event Title">
+        <input id="event_date" type="date">
+        <button onclick="addEvent()">Add</button>
+      </div>
+      <div class="card"><h3>Events</h3><ul id="event_list"></ul></div>
+    </section>
+
+    <section id="tasks">
+      <div class="card"><h3>Add Task</h3>
+        <input id="task_text" placeholder="Task">
+        <button onclick="addTask()">Add</button>
+      </div>
+      <div class="card"><h3>Tasks</h3><ul id="task_list"></ul></div>
+    </section>
+
+    <section id="notes">
+      <div class="card"><h3>Notes</h3>
+        <textarea id="notes_area" rows="8"></textarea>
+        <button onclick="saveNotes()">Save</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.querySelectorAll('nav button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('main section').forEach(sec=>sec.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    let state = JSON.parse(localStorage.getItem("atlas_simple")||'{"events":[],"tasks":[],"notes":""}');
+
+    function save(){ localStorage.setItem("atlas_simple", JSON.stringify(state)); }
+
+    function addEvent(){
+      const t=document.getElementById("event_title").value;
+      const d=document.getElementById("event_date").value;
+      if(!t||!d)return;
+      state.events.push({t,d}); save(); renderEvents();
+    }
+    function renderEvents(){
+      const ul=document.getElementById("event_list"); ul.innerHTML="";
+      state.events.forEach(e=>{ ul.innerHTML+=`<li>${e.d}: ${e.t}</li>`; });
+    }
+
+    function addTask(){
+      const txt=document.getElementById("task_text").value;
+      if(!txt)return;
+      state.tasks.push(txt); save(); renderTasks();
+    }
+    function renderTasks(){
+      const ul=document.getElementById("task_list"); ul.innerHTML="";
+      state.tasks.forEach(t=>{ ul.innerHTML+=`<li>${t}</li>`; });
+    }
+
+    function saveNotes(){
+      state.notes=document.getElementById("notes_area").value; save();
+    }
+    function renderNotes(){ document.getElementById("notes_area").value=state.notes; }
+
+    function init(){ renderEvents(); renderTasks(); renderNotes(); }
+    init();
+  </script>
+</body>
+</html>
