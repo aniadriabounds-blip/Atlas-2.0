@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Atlas">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0f1110;--ink:#ecece6;--line:#2b2f29;--accent:#7aa683;--good:#3fb47b;--bad:#d05a54}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,Arial}
+header{position:sticky;top:0;background:#121513;padding:10px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:20px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#161a16;color:#b8c8ba;cursor:pointer}
+nav button.active{background:var(--accent);color:#0f1110;font-weight:700}
+main{padding:14px;max-width:960px;margin:0 auto}
+section{display:none}.active{display:block}
+.card{background:#141713;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#161a16;color:var(--ink)}
+button.primary{background:var(--accent);color:#0f1110;font-weight:800;border:none}
+.small{color:#9fb2a0;font-size:12px}
+#lock{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:50}
+#lock .inner{max-width:420px;width:calc(100% - 28px)}
+.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:50}
+.modal .inner{max-width:560px;width:calc(100% - 28px)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Atlas</h1>
+  <nav>
+    <button data-tab="feed" class="active">Feed</button>
+    <button data-tab="money">Money</button>
+    <button data-tab="credit">Credit</button>
+    <button data-tab="planner">Planner</button>
+    <button data-tab="tasks">Tasks</button>
+    <button data-tab="notes">Notes</button>
+    <button id="open_settings">⚙️</button>
+  </nav>
+</header>
+<main>
+  <section id="feed" class="active"><div class="card">Welcome to Atlas</div></section>
+  <section id="money"><div class="card">Money tab here</div></section>
+  <section id="credit"><div class="card">Credit tab here</div></section>
+  <section id="planner"><div class="card">Planner tab here</div></section>
+  <section id="tasks"><div class="card">Tasks tab here</div></section>
+  <section id="notes"><div class="card"><textarea id="notes_area" rows="8" style="width:100%"></textarea><button id="notes_save" class="primary">Save</button></div></section>
+</main>
+
+<!-- Settings Modal -->
+<div id="settings" class="modal">
+  <div class="inner card">
+    <h3>Settings</h3>
+    <button id="btn_export" class="primary">Export Backup</button>
+    <input id="import_file" type="file" accept="application/json" style="display:none">
+    <button id="btn_import">Import Backup</button>
+    <button id="btn_reset">Reset App</button>
+    <hr>
+    <input id="pin_new" placeholder="6-digit passcode" maxlength="6">
+    <button id="pin_set">Set Passcode</button>
+    <button id="pin_clear">Remove Passcode</button>
+    <button id="settings_close">Close</button>
+  </div>
+</div>
+
+<!-- Lock screen -->
+<div id="lock"><div class="inner card">
+  <p>Enter passcode:</p>
+  <input id="pin_enter" type="password" maxlength="6">
+  <button id="pin_go" class="primary">Unlock</button>
+</div></div>
+
+<script src="app.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>
