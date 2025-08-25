@@ -1,322 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Atlas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Atlas">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
-  :root{--bg:#0f1110;--paper:#131712;--ink:#ecece6;--muted:#99a49b;--line:#252a24;--accent:#7d8f75;--good:#3fb47b;--bad:#d05a54}
-  *{box-sizing:border-box} body{margin:0;background:#0f1110;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
-  header{position:sticky;top:0;z-index:5;background:#121513;padding:10px;border-bottom:1px solid var(--line);text-align:center}
-  h1{margin:0;font-size:20px} nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
-  nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#161a16;color:var(--muted);cursor:pointer}
-  nav button.active{background:var(--accent);color:#0f1110;font-weight:700;border-color:transparent}
-  main{padding:14px;max-width:980px;margin:0 auto}
-  section{display:none} section.active{display:block}
-  .card{background:linear-gradient(180deg,#141713,#10130f);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
-  .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
-  input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#161a16;color:var(--ink)}
-  button.primary{background:var(--accent);border-color:transparent;color:#0f1110;font-weight:800}
-  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
-  .small{color:var(--muted);font-size:12px}
-  .pill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);padding:4px 8px;border-radius:999px;color:var(--muted);font-size:12px}
-  .num{font-variant-numeric:tabular-nums} .stat{font-size:22px;font-weight:800}
-  .good{color:var(--good)} .bad{color:var(--bad)} .right{margin-left:auto}
+:root{--bg:#0f1110;--ink:#ecece6;--line:#2b2f29;--accent:#7aa683;--good:#3fb47b;--bad:#d05a54}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,Arial}
+header{position:sticky;top:0;background:#121513;padding:10px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:20px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+nav button{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#161a16;color:#b8c8ba;cursor:pointer}
+nav button.active{background:var(--accent);color:#0f1110;font-weight:700}
+main{padding:14px;max-width:960px;margin:0 auto}
+section{display:none}.active{display:block}
+.card{background:#141713;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#161a16;color:var(--ink)}
+button.primary{background:var(--accent);color:#0f1110;font-weight:800;border:none}
+.small{color:#9fb2a0;font-size:12px}
+#lock{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:50}
+#lock .inner{max-width:420px;width:calc(100% - 28px)}
+.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:50}
+.modal .inner{max-width:560px;width:calc(100% - 28px)}
 </style>
 </head>
 <body>
-  <header>
-    <h1>Atlas</h1>
-    <nav>
-      <button data-tab="feed" class="active">Feed</button>
-      <button data-tab="money">Money</button>
-      <button data-tab="credit">Credit</button>
-      <button data-tab="planner">Planner</button>
-      <button data-tab="tasks">Tasks</button>
-      <button data-tab="notes">Notes</button>
-    </nav>
-  </header>
+<header>
+  <h1>Atlas</h1>
+  <nav>
+    <button data-tab="feed" class="active">Feed</button>
+    <button data-tab="money">Money</button>
+    <button data-tab="credit">Credit</button>
+    <button data-tab="planner">Planner</button>
+    <button data-tab="tasks">Tasks</button>
+    <button data-tab="notes">Notes</button>
+    <button id="open_settings">⚙️</button>
+  </nav>
+</header>
+<main>
+  <section id="feed" class="active"><div class="card">Welcome to Atlas</div></section>
+  <section id="money"><div class="card">Money tab here</div></section>
+  <section id="credit"><div class="card">Credit tab here</div></section>
+  <section id="planner"><div class="card">Planner tab here</div></section>
+  <section id="tasks"><div class="card">Tasks tab here</div></section>
+  <section id="notes"><div class="card"><textarea id="notes_area" rows="8" style="width:100%"></textarea><button id="notes_save" class="primary">Save</button></div></section>
+</main>
 
-  <main>
-    <!-- FEED -->
-    <section id="feed" class="active">
-      <div class="card">
-        <div class="row">
-          <div>
-            <div class="small">Today’s Cash</div>
-            <div class="stat num" id="feed_cash">$0</div>
-            <div class="small">Checking + Savings + Cash</div>
-          </div>
-          <div>
-            <div class="small">Debt (Cards)</div>
-            <div class="stat num" id="feed_debt">$0</div>
-            <div class="small">Sum of positive CC balances</div>
-          </div>
-          <div>
-            <div class="small">Next Event</div>
-            <div class="stat" id="feed_event">—</div>
-            <div class="small">From Planner</div>
-          </div>
-          <div>
-            <div class="small">Task Streak</div>
-            <div class="stat" id="feed_streak">0 days</div>
-            <div class="small">Days all “Today” tasks complete</div>
-          </div>
-        </div>
-      </div>
-    </section>
+<!-- Settings Modal -->
+<div id="settings" class="modal">
+  <div class="inner card">
+    <h3>Settings</h3>
+    <button id="btn_export" class="primary">Export Backup</button>
+    <input id="import_file" type="file" accept="application/json" style="display:none">
+    <button id="btn_import">Import Backup</button>
+    <button id="btn_reset">Reset App</button>
+    <hr>
+    <input id="pin_new" placeholder="6-digit passcode" maxlength="6">
+    <button id="pin_set">Set Passcode</button>
+    <button id="pin_clear">Remove Passcode</button>
+    <button id="settings_close">Close</button>
+  </div>
+</div>
 
-    <!-- MONEY -->
-    <section id="money">
-      <div class="card">
-        <div class="row">
-          <div><label class="small">Type</label>
-            <select id="acct_type">
-              <option>Checking</option><option>Savings</option><option>Credit Card</option><option>Cash</option>
-            </select></div>
-          <div><label class="small">Name</label><input id="acct_name" placeholder="e.g., Chase Checking"></div>
-          <div><label class="small">Opening Balance</label><input id="acct_open" type="number" step="0.01" placeholder="0.00"></div>
-          <div><label class="small">Credit Limit (if CC)</label><input id="acct_limit" type="number" step="1" placeholder="0"></div>
-          <div style="flex:0 0 160px;align-self:flex-end"><button id="acct_add" class="primary">Add</button></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="row" id="acct_cards"></div>
-      </div>
-      <div class="card">
-        <div class="row">
-          <div><label class="small">Account</label><select id="tx_acct"></select></div>
-          <div><label class="small">Date</label><input id="tx_date" type="date"></div>
-          <div><label class="small">Description</label><input id="tx_desc" placeholder="Description"></div>
-          <div><label class="small">Category</label>
-            <select id="tx_cat">
-              <option>Income</option><option>Transfer</option><option>Groceries</option><option>Rent</option>
-              <option>Dining</option><option>Utilities</option><option>Debt Payment</option><option>Other</option>
-            </select></div>
-          <div><label class="small">Amount (+/‑)</label><input id="tx_amt" type="number" step="0.01" placeholder="-25.00"></div>
-          <div style="flex:0 0 160px;align-self:flex-end"><button id="tx_add" class="primary">Add Tx</button></div>
-        </div>
-        <table>
-          <thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Category</th><th class="num">Amount</th><th></th></tr></thead>
-          <tbody id="tx_rows"></tbody>
-        </table>
-      </div>
-    </section>
+<!-- Lock screen -->
+<div id="lock"><div class="inner card">
+  <p>Enter passcode:</p>
+  <input id="pin_enter" type="password" maxlength="6">
+  <button id="pin_go" class="primary">Unlock</button>
+</div></div>
 
-    <!-- CREDIT -->
-    <section id="credit">
-      <div class="card">
-        <div class="row">
-          <div>
-            <div class="small">Overall Utilization</div>
-            <div class="stat" id="util_overall">—</div>
-            <div class="small">Aim &lt; 10%</div>
-          </div>
-          <div>
-            <div class="small">Score (manual)</div>
-            <div class="row">
-              <input id="score_in" type="number" step="1" value="700">
-              <button id="score_set" class="primary" style="flex:0 0 120px">Set</button>
-            </div>
-            <div class="small">Current: <span id="score_val">700</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="small">Per‑card details</div>
-        <table>
-          <thead><tr><th>Card</th><th class="num">Balance</th><th class="num">Limit</th><th class="num">Util%</th></tr></thead>
-          <tbody id="util_rows"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- PLANNER -->
-    <section id="planner">
-      <div class="card">
-        <div class="row">
-          <div><input id="event_title" placeholder="Event Title"></div>
-          <div><input id="event_date" type="date"></div>
-          <div style="flex:0 0 160px;align-self:flex-end"><button id="event_add" class="primary">Add</button></div>
-        </div>
-      </div>
-      <div class="card">
-        <ul id="event_list"></ul>
-      </div>
-    </section>
-
-    <!-- TASKS -->
-    <section id="tasks">
-      <div class="card">
-        <div class="row">
-          <div><input id="task_text" placeholder="Task"></div>
-          <div style="flex:0 0 160px;align-self:flex-end"><button id="task_add" class="primary">Add</button></div>
-        </div>
-      </div>
-      <div class="card">
-        <ul id="task_list"></ul>
-      </div>
-    </section>
-
-    <!-- NOTES -->
-    <section id="notes">
-      <div class="card">
-        <textarea id="notes_area" rows="10" placeholder="Notes…"></textarea>
-        <div class="row" style="margin-top:8px"><button id="notes_save" class="primary">Save</button></div>
-      </div>
-    </section>
-  </main>
-
+<script src="app.js"></script>
 <script>
-/* -------- Nav -------- */
-document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active');
-  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active')); document.getElementById(b.dataset.tab).classList.add('active');
-}));
-
-/* -------- State -------- */
-let STATE = JSON.parse(localStorage.getItem('atlas_v2')||'{}');
-if(!STATE.version){ STATE = {version:'2', accounts:[], txs:[], events:[], tasks:[], notes:'', score:700, streakDays:0, lastStreakDate:''}; save(); }
-function save(){ localStorage.setItem('atlas_v2', JSON.stringify(STATE)); }
-
-/* -------- Money -------- */
-function addAccount(){
-  const type = document.getElementById('acct_type').value;
-  const name = document.getElementById('acct_name').value.trim() || 'Unnamed';
-  const open = parseFloat(document.getElementById('acct_open').value||'0');
-  const limit = parseFloat(document.getElementById('acct_limit').value||'0');
-  const acct = { id:'a'+Date.now(), type, name, balance:open, limit: (type==='Credit Card'? (limit||0): 0) };
-  STATE.accounts.push(acct); save(); renderAccounts(); renderTxForm(); renderCredit(); renderFeed();
-  document.getElementById('acct_name').value=''; document.getElementById('acct_open').value=''; document.getElementById('acct_limit').value='';
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));
 }
-function deleteAccount(id){
-  STATE.accounts = STATE.accounts.filter(a=>a.id!==id);
-  STATE.txs = STATE.txs.filter(t=>t.acct!==id);
-  save(); renderAccounts(); renderTxs(); renderTxForm(); renderCredit(); renderFeed();
-}
-function addTx(){
-  const acct = document.getElementById('tx_acct').value;
-  const date = document.getElementById('tx_date').value;
-  const desc = document.getElementById('tx_desc').value;
-  const cat = document.getElementById('tx_cat').value;
-  const amt = parseFloat(document.getElementById('tx_amt').value||'0');
-  if(!acct || !date || !amt){ alert('Account, date, amount required'); return; }
-  const tx = { id:'t'+Date.now(), acct, date, desc, cat, amt };
-  STATE.txs.push(tx);
-  const a = STATE.accounts.find(x=>x.id===acct); if(a){ a.balance = +(a.balance + amt).toFixed(2); }
-  save(); renderTxs(); renderAccounts(); renderCredit(); renderFeed();
-  document.getElementById('tx_desc').value=''; document.getElementById('tx_amt').value='';
-}
-function deleteTx(id){
-  const tx = STATE.txs.find(x=>x.id===id);
-  if(tx){ const a = STATE.accounts.find(x=>x.id===tx.acct); if(a){ a.balance = +(a.balance - tx.amt).toFixed(2); } }
-  STATE.txs = STATE.txs.filter(t=>t.id!==id);
-  save(); renderTxs(); renderAccounts(); renderCredit(); renderFeed();
-}
-function renderAccounts(){
-  const wrap = document.getElementById('acct_cards'); wrap.innerHTML='';
-  if(STATE.accounts.length===0){ wrap.innerHTML = '<div class="small">No accounts yet.</div>'; return; }
-  STATE.accounts.forEach(a=>{
-    const div = document.createElement('div'); div.className='card'; div.style.flex='1';
-    const limit = a.type==='Credit Card' ? `<span class="small"> • Limit: $${(a.limit||0).toLocaleString()}</span>`:'';
-    div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
-      <div class="pill">${a.type}</div>
-      <div class="pill">${a.name}</div>
-      <div class="pill num">$${(+a.balance).toLocaleString(undefined,{maximumFractionDigits:2})}</div>
-      <div class="small">${limit}</div>
-      <div class="right"><button data-delacct="${a.id}">Delete</button></div>
-    </div>`;
-    wrap.appendChild(div);
-  });
-}
-function renderTxForm(){
-  const sel = document.getElementById('tx_acct'); sel.innerHTML='';
-  STATE.accounts.forEach(a=>{
-    const o=document.createElement('option'); o.value=a.id; o.textContent=`${a.name}`; sel.appendChild(o);
-  });
-}
-function renderTxs(){
-  const rows = document.getElementById('tx_rows'); rows.innerHTML='';
-  STATE.txs.slice().sort((a,b)=>a.date<b.date?1:-1).forEach(t=>{
-    const acct = STATE.accounts.find(a=>a.id===t.acct);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${t.date}</td><td>${acct?acct.name:'?'}</td><td>${t.desc||''}</td><td>${t.cat}</td><td class="num">${t.amt>=0?'+':''}$${Math.abs(t.amt).toFixed(2)}</td><td><button data-deltx="${t.id}">Delete</button></td>`;
-    rows.appendChild(tr);
-  });
-}
-
-/* -------- Credit -------- */
-function computeUtil(){
-  const cards = STATE.accounts.filter(a=>a.type==='Credit Card');
-  const bal = cards.reduce((s,a)=> s + Math.max(0, a.balance||0), 0);
-  const lim = cards.reduce((s,a)=> s + (a.limit||0), 0);
-  const overall = lim>0 ? (bal/lim)*100 : null;
-  return {overall, cards};
-}
-function renderCredit(){
-  const {overall, cards} = computeUtil();
-  document.getElementById('score_val').textContent = STATE.score||700;
-  if(overall===null){ document.getElementById('util_overall').textContent='—'; }
-  else {
-    const pct = overall.toFixed(1)+'%';
-    const el = document.getElementById('util_overall');
-    el.textContent = pct;
-    el.className = 'stat ' + (overall<=10?'good':overall<=30?'':'bad');
-  }
-  const rows = document.getElementById('util_rows'); rows.innerHTML='';
-  cards.forEach(c=>{
-    const util = c.limit>0 ? ((Math.max(0,c.balance)/c.limit)*100).toFixed(1)+'%' : '—';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${c.name}</td><td class="num">$${(Math.max(0,c.balance)).toFixed(2)}</td><td class="num">$${(c.limit||0).toFixed(0)}</td><td class="num">${util}</td>`;
-    rows.appendChild(tr);
-  });
-}
-document.getElementById('score_set').addEventListener('click',()=>{
-  const v = parseInt(document.getElementById('score_in').value||'700'); STATE.score = v; save(); renderCredit();
-});
-
-/* -------- Planner / Tasks / Notes -------- */
-function addEvent(){ const t=document.getElementById('event_title').value.trim(), d=document.getElementById('event_date').value;
-  if(!t||!d)return; STATE.events.push({t,d}); save(); renderEvents(); document.getElementById('event_title').value=''; document.getElementById('event_date').value=''; }
-function renderEvents(){ const ul=document.getElementById('event_list'); ul.innerHTML=''; STATE.events.sort((a,b)=>a.d<b.d?-1:1).forEach(e=>{ const li=document.createElement('li'); li.textContent = `${e.d}: ${e.t}`; ul.appendChild(li); }); }
-function addTask(){ const txt=document.getElementById('task_text').value.trim(); if(!txt)return; STATE.tasks.push({text:txt,done:false}); save(); renderTasks(); document.getElementById('task_text').value=''; }
-function renderTasks(){ const ul=document.getElementById('task_list'); ul.innerHTML=''; STATE.tasks.forEach((t,i)=>{ const li=document.createElement('li'); li.innerHTML = `<label><input type="checkbox" data-tdx="${i}" ${t.done?'checked':''}> ${t.text}</label>`; ul.appendChild(li); }); }
-function renderNotes(){ document.getElementById('notes_area').value = STATE.notes||''; }
-document.getElementById('notes_save').addEventListener('click',()=>{ STATE.notes = document.getElementById('notes_area').value||''; save(); });
-
-/* -------- Feed -------- */
-function renderFeed(){
-  const cash = STATE.accounts.filter(a=>a.type!=='Credit Card').reduce((s,a)=>s+(a.balance||0),0);
-  document.getElementById('feed_cash').textContent = '$'+cash.toLocaleString(undefined,{maximumFractionDigits:2});
-  const debt = STATE.accounts.filter(a=>a.type==='Credit Card').reduce((s,a)=>s+Math.max(0,a.balance||0),0);
-  document.getElementById('feed_debt').textContent = '$'+debt.toLocaleString(undefined,{maximumFractionDigits:2});
-  const today = new Date().toISOString().slice(0,10);
-  const upcoming = STATE.events.filter(e=>e.d>=today).sort((a,b)=>a.d<b.d?-1:1)[0];
-  document.getElementById('feed_event').textContent = upcoming ? `${upcoming.d}: ${upcoming.t}` : '—';
-  const allDone = STATE.tasks.length>0 && STATE.tasks.every(t=>t.done);
-  const last = STATE.lastStreakDate||''; const now = new Date().toISOString().slice(0,10);
-  if(allDone && last!==now){ STATE.streakDays = (STATE.streakDays||0)+1; STATE.lastStreakDate = now; save(); }
-  document.getElementById('feed_streak').textContent = (STATE.streakDays||0)+' days';
-}
-
-/* -------- Listeners -------- */
-document.getElementById('acct_add').addEventListener('click', addAccount);
-document.getElementById('tx_add').addEventListener('click', addTx);
-document.getElementById('event_add').addEventListener('click', addEvent);
-document.getElementById('task_add').addEventListener('click', addTask);
-document.addEventListener('click', (e)=>{
-  const delA = e.target.getAttribute('data-delacct'); if(delA){ deleteAccount(delA); }
-  const delT = e.target.getAttribute('data-deltx'); if(delT){ deleteTx(delT); }
-});
-document.addEventListener('change',(e)=>{
-  const idx = e.target.getAttribute('data-tdx'); if(idx!==null){ STATE.tasks[idx].done = e.target.checked; save(); renderFeed(); }
-});
-
-/* -------- Init -------- */
-function init(){
-  renderAccounts(); renderTxForm(); renderTxs(); renderCredit(); renderEvents(); renderTasks(); renderNotes(); renderFeed();
-}
-init();
 </script>
 </body>
 </html>
